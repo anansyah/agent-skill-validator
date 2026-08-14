@@ -2,7 +2,7 @@
 
 ![Python Versions](https://img.shields.io/badge/python-3.9%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-beta-orange)
+![Status](https://img.shields.io/badge/status-stable-green)
 ![GitHub stars](https://img.shields.io/github/stars/anansyah/agent-skill-validator?style=social)
 
 Auto-test AI agent skills for **broken dependencies**, **compatibility issues**, and **security risks**. Works with **Hermes**, **Claude Code**, **OpenCode**, **Codex**, and any agent using `SKILL.md` / `.claude.md` format.
@@ -32,6 +32,9 @@ agent-skill-validator validate ./my-skill-repo
 # Generate markdown report
 agent-skill-validator report ./my-skill-repo --output report.md
 
+# Generate HTML report
+agent-skill-validator report ./my-skill-repo --format html --output report.html
+
 # Test prompt samples against a model
 agent-skill-validator test ./my-skill-repo --model openai/gpt-4o-mini
 ```
@@ -52,15 +55,17 @@ agent-skill-validator test ./my-skill-repo --model openai/gpt-4o-mini
 - Broken `requirements.txt` / `package.json` references
 - Unpinned or obviously outdated versions
 
-### Compatibility
-- API endpoint drift between models
-- Deprecated parameter usage
-- Context length assumptions
-
 ### Security
 - Hardcoded API keys, tokens, passwords
 - Unsafe shell commands (`rm -rf`, `curl | bash`)
 - Placeholder secrets left in code
+- Dangerous patterns (`eval()`, `exec()`, `shell=True`)
+
+### Compatibility
+- API endpoint drift between models
+- Deprecated parameter usage
+- Context length assumptions
+- Hardcoded provider base URLs
 
 ### Format
 - Missing `SKILL.md` frontmatter
@@ -100,6 +105,11 @@ Add to your workflow:
 
 ## Roadmap
 
+- [x] Core dependency scanning
+- [x] Security scanning  
+- [x] Compatibility scanning
+- [x] Format validation
+- [x] Markdown/HTML reports
 - [ ] Multi-model prompt testing
 - [ ] Diff between skill versions
 - [ ] Share anonymized compatibility reports

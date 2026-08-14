@@ -1,20 +1,28 @@
 [project]
 name = "agent-skill-validator"
-version = "0.1.0"
-description = "Auto-test AI agent skills for broken deps + compatibility report"
+version = "0.2.0"
+description = "Auto-test AI agent skills for broken deps, compatibility issues, and security risks"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.9"
-dependencies = []
+dependencies = [
+    "pyyaml>=6.0",
+    "requests>=2.31",
+    "rich>=13.0",
+    "jinja2>=3.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov", "ruff"]
 
 [project.scripts]
 agent-skill-validator = "agent_skill_validator.__main__:main"
 
-[project.optional-dependencies]
-dev = ["pytest"]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
 
 [build-system]
 requires = ["setuptools>=61"]
