@@ -3,18 +3,19 @@
 ![Python Versions](https://img.shields.io/badge/python-3.9%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-beta-orange)
+![GitHub stars](https://img.shields.io/github/stars/anansyah/agent-skill-validator?style=social)
 
-Auto-test AI agent skills for broken dependencies, compatibility issues, and security risks. Works with **Hermes**, **Claude Code**, **OpenCode**, **Codex**, and any agent using `SKILL.md` / `.claude.md` format.
+Auto-test AI agent skills for **broken dependencies**, **compatibility issues**, and **security risks**. Works with **Hermes**, **Claude Code**, **OpenCode**, **Codex**, and any agent using `SKILL.md` / `.claude.md` format.
 
 ## Why
 
 Agent skills break all the time:
 - Model provider changes API contract
-- Dependency updates introduce breaking changes
+- Dependency updates introduce breaking changes  
 - Hardcoded secrets leak in public repos
 - Skill format evolves and old skills become incompatible
 
-This tool catches those issues before they hit production.
+This tool catches those issues **before they hit production**.
 
 ## Install
 
@@ -42,7 +43,7 @@ agent-skill-validator test ./my-skill-repo --model openai/gpt-4o-mini
 | Hermes | `SKILL.md`, `skills/`, `.skills/` |
 | Claude Code | `.claude.md`, `CLAUDE.md` |
 | OpenCode | `opencode.json`, `agents/` |
-| Generic | Any `.md`, `.yaml`, `.json`, `.py`, `.sh` |
+| Generic | Any `.md`, `.yaml`, `.json`, `.py`, `.sh`, `.js`, `.ts` |
 
 ## Checks Performed
 
@@ -94,7 +95,7 @@ Add to your workflow:
 - name: Validate agent skills
   run: |
     pip install agent-skill-validator
-    agent-skill-validator validate ./skills --output skill-report.json
+    agent-skill-validator validate . --output skill-report.json
 ```
 
 ## Roadmap
