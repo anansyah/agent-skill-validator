@@ -102,7 +102,7 @@ agent-skill-validator test ./my-skill-repo --model openai/gpt-4o-mini
   "total_issues": 7,
   "results": [
     {
-      "skill": "xau-scalper",
+      "skill": "demo-skill",
       "issue_count": 3,
       "issues": [
         {"level": "error", "message": "Missing SKILL.md frontmatter"},

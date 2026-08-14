@@ -6,7 +6,7 @@
 - Add format validation for markdown and YAML
 - Add markdown and HTML report generation
 - Add pytest test suite with fixtures
-- Add example skills: sample-skill and xau-scalper
+- Add example skills: sample-skill and demo-skill
 
 ## [0.1.0] - 2026-08-13
 - Initial release

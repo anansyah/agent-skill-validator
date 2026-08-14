@@ -7,7 +7,7 @@
 - **Format validation**: SKILL.md frontmatter, broken markdown links
 - **Reports**: JSON, Markdown, and HTML output
 - **Tests**: pytest suite with broken-skill fixture
-- **Examples**: sample-skill and xau-scalper
+- **Examples**: sample-skill and demo-skill
 
 ## Install
 

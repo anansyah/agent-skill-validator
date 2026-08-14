@@ -1,5 +1,5 @@
 ---
-name: xau-scalper
+name: demo-skill
 description: XAU/USD scalping strategy with risk management
 version: 2.0.0
 author: lgd
