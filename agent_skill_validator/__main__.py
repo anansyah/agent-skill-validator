@@ -25,27 +25,31 @@ def find_skill_dirs(repo_path: str):
         if p.exists() and p.is_dir():
             candidates.append(p)
     if not candidates:
-        p = repo
-        if p.exists():
-            candidates.append(p)
+        candidates.append(repo)
     return candidates
 
 
 def scan_skill(entry: Path):
     issues = []
     for path in entry.rglob("*"):
-        if path.is_file() and path.suffix in {".py", ".md", ".yaml", ".yml", ".toml", ".json", ".sh"}:
-            text = ""
-            try:
-                text = path.read_text(errors="ignore")
-            except Exception:
-                continue
-            if "requests.get(" in text and "proxies=" not in text and "urllib.request.ProxyHandler" not in text:
-                issues.append({"path": str(path), "level": "warn", "message": "HTTP request without explicit proxy handling"})
-            if re.search(r"Authorization[^\n]{0,40}Bearer[^\n]{0,40}YOUR_API_KEY", text):
-                issues.append({"path": str(path), "level": "warn", "message": "Placeholder API key remains in code"})
-            if "TODO" in text or "FIXME" in text:
-                issues.append({"path": str(path), "level": "info", "message": "TODO/FIXME marker found"})
+        if not path.is_file():
+            continue
+        if path.suffix not in {".py", ".md", ".yaml", ".yml", ".toml", ".json", ".sh"}:
+            continue
+        text = ""
+        try:
+            text = path.read_text(errors="ignore")
+        except Exception:
+            continue
+
+        if ("requests.get(" in text or "urllib.request" in text) and "proxies=" not in text and "ProxyHandler" not in text:
+            issues.append({"path": str(path), "level": "warn", "message": "HTTP request without explicit proxy handling"})
+        if re.search(r"Authorization[^\n]{0,40}Bearer[^\n]{0,40}YOUR_API_KEY", text):
+            issues.append({"path": str(path), "level": "warn", "message": "Placeholder API key remains in code"})
+        if "TODO" in text or "FIXME" in text:
+            issues.append({"path": str(path), "level": "info", "message": "TODO/FIXME marker found"})
+        if path.name == "SKILL.md" and not text.startswith("---"):
+            issues.append({"path": str(path), "level": "warn", "message": "Missing SKILL.md frontmatter"})
     return issues
 
 
@@ -68,12 +72,33 @@ def validate(repo_path: str):
     return summary
 
 
+def test_samples(repo_path: str, model: str):
+    summary = {
+        "repo": repo_path,
+        "model": model,
+        "status": "not_implemented",
+        "message": "Multi-model prompt testing is planned for a future release.",
+    }
+    print(json.dumps(summary, indent=2))
+    return summary
+
+
 def build_parser():
     parser = argparse.ArgumentParser(prog="agent-skill-validator")
-    parser.add_argument("command", choices=["validate", "report"])
-    parser.add_argument("repo")
-    parser.add_argument("--output", default=None)
-    parser.add_argument("--model", default=None)
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p_validate = sub.add_parser("validate")
+    p_validate.add_argument("repo")
+    p_validate.add_argument("--output", default=None)
+
+    p_test = sub.add_parser("test")
+    p_test.add_argument("repo")
+    p_test.add_argument("--model", required=True)
+    p_test.add_argument("--output", default=None)
+
+    p_report = sub.add_parser("report")
+    p_report.add_argument("repo")
+    p_report.add_argument("--output", default=None)
     return parser
 
 
@@ -82,6 +107,8 @@ def main():
     args = parser.parse_args()
     if args.command == "validate":
         summary = validate(args.repo)
+    elif args.command == "test":
+        summary = test_samples(args.repo, args.model)
     elif args.command == "report":
         summary = validate(args.repo)
         if args.output:

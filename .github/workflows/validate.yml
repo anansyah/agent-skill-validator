@@ -1,0 +1,33 @@
+name: Validate Agent Skills
+
+on:
+  push:
+    paths:
+      - "skills/**"
+      - "SKILL.md"
+      - "CLAUDE.md"
+      - ".claude.md"
+      - "agent-skill-validator/**"
+  pull_request:
+    paths:
+      - "skills/**"
+      - "SKILL.md"
+      - "CLAUDE.md"
+      - ".claude.md"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install agent-skill-validator
+      - run: agent-skill-validator validate . --output skill-report.json
+      - run: cat skill-report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: skill-report
+          path: skill-report.json
