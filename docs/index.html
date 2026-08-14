@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Skill Validator</title>
+  <meta name="description" content="Auto-test AI agent skills for broken dependencies, compatibility issues, and security risks.">
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; background: #0b0f19; color: #e2e8f0; }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .badges { margin: 1rem 0; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; margin-right: 6px; background: #1f2937; border: 1px solid #374151; }
+    .cta { display: inline-block; margin-top: 1.5rem; padding: 12px 18px; background: #2563eb; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; }
+    pre { background: #111827; padding: 16px; border-radius: 8px; overflow-x: auto; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .features { display: grid; gap: 12px; margin-top: 1.5rem; }
+    .feature { padding: 12px; background: #111827; border: 1px solid #1f2937; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Agent Skill Validator</h1>
+  <p>Auto-test AI agent skills for broken dependencies, compatibility issues, and security risks.</p>
+  <div class="badges">
+    <span class="badge">Python 3.9+</span>
+    <span class="badge">MIT</span>
+    <span class="badge">Beta</span>
+  </div>
+  <a class="cta" href="https://github.com/anansyah/agent-skill-validator">View on GitHub</a>
+
+  <h2>Quick Start</h2>
+  <pre><code>pip install agent-skill-validator
+agent-skill-validator validate ./my-skill-repo
+agent-skill-validator report ./my-skill-repo --output report.md</code></pre>
+
+  <h2>Features</h2>
+  <div class="features">
+    <div class="feature"><strong>Dependency Health</strong><br>Missing imports, broken manifests, unpinned versions.</div>
+    <div class="feature"><strong>Security</strong><br>Hardcoded secrets, unsafe shell commands, placeholder keys.</div>
+    <div class="feature"><strong>Compatibility</strong><br>Deprecated model references, context-length blind spots.</div>
+    <div class="feature"><strong>Format</strong><br>Missing frontmatter, broken markdown links.</div>
+  </div>
+
+  <h2>Example Output</h2>
+  <pre><code>{
+  "repo": "./my-skill-repo",
+  "skills": 3,
+  "total_issues": 7,
+  "results": [
+    {
+      "skill": "xau-scalper",
+      "issue_count": 3,
+      "issues": [
+        {"level": "error", "message": "Hardcoded API key in bot.py:42"},
+        {"level": "warn", "message": "Deprecated model reference: gpt-4-0314"}
+      ]
+    }
+  ]
+}</code></pre>
+</body>
+</html>
