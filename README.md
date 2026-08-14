@@ -4,6 +4,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-stable-green)
 ![GitHub stars](https://img.shields.io/github/stars/anansyah/agent-skill-validator?style=social)
+![PyPI Version](https://img.shields.io/pypi/v/agent-skill-validator)
 
 Auto-test AI agent skills for **broken dependencies**, **compatibility issues**, and **security risks**. Works with **Hermes**, **Claude Code**, **OpenCode**, **Codex**, and any agent using `SKILL.md` / `.claude.md` format.
 
@@ -11,7 +12,7 @@ Auto-test AI agent skills for **broken dependencies**, **compatibility issues**,
 
 Agent skills break all the time:
 - Model provider changes API contract
-- Dependency updates introduce breaking changes  
+- Dependency updates introduce breaking changes
 - Hardcoded secrets leak in public repos
 - Skill format evolves and old skills become incompatible
 
@@ -19,8 +20,28 @@ This tool catches those issues **before they hit production**.
 
 ## Install
 
+### Desktop / Server
+
 ```bash
 pip install agent-skill-validator
+```
+
+### Termux (Android)
+
+```bash
+pkg update -y && pkg upgrade -y
+pkg install python -y
+pip install pyyaml requests rich jinja2 -q
+git clone https://github.com/anansyah/agent-skill-validator.git
+cd agent-skill-validator
+```
+
+### Portable / No Install
+
+```bash
+git clone https://github.com/anansyah/agent-skill-validator.git
+cd agent-skill-validator
+python3 -m agent_skill_validator validate ./your-skill-repo
 ```
 
 ## Quick Start
@@ -106,7 +127,7 @@ Add to your workflow:
 ## Roadmap
 
 - [x] Core dependency scanning
-- [x] Security scanning  
+- [x] Security scanning
 - [x] Compatibility scanning
 - [x] Format validation
 - [x] Markdown/HTML reports
