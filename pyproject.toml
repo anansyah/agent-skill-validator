@@ -1,0 +1,21 @@
+[project]
+name = "agent-skill-validator"
+version = "0.1.0"
+description = "Auto-test AI agent skills for broken deps + compatibility report"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+agent-skill-validator = "agent_skill_validator.__main__:main"
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
