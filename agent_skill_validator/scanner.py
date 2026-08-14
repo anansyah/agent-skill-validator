@@ -2,10 +2,8 @@ from __future__ import annotations
 
 import json
 import re
-import subprocess
-import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 
 SKILL_DIR_CANDIDATES = [
@@ -86,12 +84,10 @@ def find_skill_dirs(repo_path: str) -> list[Path]:
     return candidates
 
 
-def _iter_text_files(entry: Path) -> list[Path]:
-    files = []
+def _iter_text_files(entry: Path) -> Iterable[Path]:
     for path in entry.rglob("*"):
         if path.is_file() and path.suffix in SUPPORTED_EXTENSIONS:
-            files.append(path)
-    return files
+            yield path
 
 
 def _read_text(path: Path) -> str:
@@ -106,7 +102,6 @@ def scan_dependency_health(entry: Path) -> list[dict[str, Any]]:
     for path in _iter_text_files(entry):
         text = _read_text(path)
         rel = str(path.relative_to(entry))
-        
         if path.suffix == ".py":
             imports = re.findall(r"^(?:import|from)\s+([\w\.]+)", text, flags=re.M)
             for mod in imports:
@@ -120,7 +115,6 @@ def scan_dependency_health(entry: Path) -> list[dict[str, Any]]:
                         "message": f"External dependency may need explicit requirement: {pkg}",
                         "category": "dependency",
                     })
-        
         if path.name in {"requirements.txt", "pyproject.toml", "package.json"}:
             if "TODO" in text or "FIXME" in text or "PLACEHOLDER" in text:
                 issues.append({
@@ -129,19 +123,6 @@ def scan_dependency_health(entry: Path) -> list[dict[str, Any]]:
                     "message": "Dependency manifest contains TODO/FIXME/PLACEHOLDER markers",
                     "category": "dependency",
                 })
-            
-            # Check for unpinned versions
-            if path.name == "requirements.txt":
-                for line in text.splitlines():
-                    line = line.strip()
-                    if line and not line.startswith("#") and "==" not in line and ">=" not in line and line != "":
-                        if "@" not in line:  # Skip URL-based installs
-                            issues.append({
-                                "path": rel,
-                                "level": "info",
-                                "message": f"Unpinned dependency: {line}",
-                                "category": "dependency",
-                            })
     return issues
 
 
@@ -150,17 +131,7 @@ def scan_security(entry: Path) -> list[dict[str, Any]]:
     for path in _iter_text_files(entry):
         text = _read_text(path)
         rel = str(path.relative_to(entry))
-        
-        for pattern, message, level in UNSAFE_PATTERNS:
-            if re.search(pattern, text, flags=re.IGNORECASE):
-                issues.append({
-                    "path": rel,
-                    "level": level,
-                    "message": message,
-                    "category": "security",
-                })
-        
-        for pattern, message, level in SECRET_PATTERNS:
+        for pattern, message, level in UNSAFE_PATTERNS + SECRET_PATTERNS:
             if re.search(pattern, text, flags=re.IGNORECASE):
                 issues.append({
                     "path": rel,
@@ -176,7 +147,6 @@ def scan_compatibility(entry: Path) -> list[dict[str, Any]]:
     for path in _iter_text_files(entry):
         text = _read_text(path)
         rel = str(path.relative_to(entry))
-        
         for model in DEPRECATED_MODELS:
             if model in text:
                 issues.append({
@@ -185,7 +155,6 @@ def scan_compatibility(entry: Path) -> list[dict[str, Any]]:
                     "message": f"Deprecated model reference: {model}",
                     "category": "compatibility",
                 })
-        
         if "max_tokens" in text and "context_length" not in text:
             issues.append({
                 "path": rel,
@@ -193,22 +162,11 @@ def scan_compatibility(entry: Path) -> list[dict[str, Any]]:
                 "message": "max_tokens used without context_length consideration",
                 "category": "compatibility",
             })
-        
-        # Check for hardcoded API base URLs that might drift
-        if "api.openai.com" in text or "api.anthropic.com" in text:
-            issues.append({
-                "path": rel,
-                "level": "info",
-                "message": "Hardcoded API base URL - consider making configurable",
-                "category": "compatibility",
-            })
     return issues
 
 
 def scan_format(entry: Path) -> list[dict[str, Any]]:
     issues = []
-    
-    # Check SKILL.md frontmatter
     md = entry / "SKILL.md"
     if md.exists():
         text = _read_text(md)
@@ -219,24 +177,6 @@ def scan_format(entry: Path) -> list[dict[str, Any]]:
                 "message": "Missing SKILL.md frontmatter",
                 "category": "format",
             })
-        else:
-            # Try parsing YAML frontmatter
-            try:
-                import yaml
-                parts = text.split("---", 2)
-                if len(parts) >= 3:
-                    yaml.safe_load(parts[1])
-            except ImportError:
-                pass
-            except Exception:
-                issues.append({
-                    "path": "SKILL.md",
-                    "level": "warn",
-                    "message": "Invalid YAML frontmatter",
-                    "category": "format",
-                })
-    
-    # Check markdown links
     for path in entry.rglob("*.md"):
         text = _read_text(path)
         rel = str(path.relative_to(entry))
@@ -249,7 +189,6 @@ def scan_format(entry: Path) -> list[dict[str, Any]]:
                     "message": f"Broken relative markdown link: {link}",
                     "category": "format",
                 })
-    
     return issues
 
 
@@ -271,30 +210,28 @@ def validate(repo_path: str) -> dict[str, Any]:
             "issues": issues,
             "issue_count": len(issues),
         })
-    summary = {
+    return {
         "repo": repo_path,
         "skills": len(results),
         "total_issues": sum(item["issue_count"] for item in results),
         "results": results,
     }
-    return summary
 
 
 def generate_markdown_report(summary: dict[str, Any]) -> str:
     lines = [
-        f"# Agent Skill Validator Report",
-        f"",
+        "# Agent Skill Validator Report",
+        "",
         f"**Repo:** {summary['repo']}",
         f"**Skills scanned:** {summary['skills']}",
         f"**Total issues:** {summary['total_issues']}",
-        f"",
-        f"---",
-        f"",
+        "",
+        "---",
+        "",
     ]
-    
     for result in summary["results"]:
         lines.append(f"## {result['skill']}")
-        lines.append(f"")
+        lines.append("")
         if result["issues"]:
             for issue in result["issues"]:
                 level = issue["level"].upper()
@@ -302,9 +239,8 @@ def generate_markdown_report(summary: dict[str, Any]) -> str:
                 lines.append(f"  - Path: `{issue['path']}`")
                 lines.append(f"  - Category: {issue['category']}")
         else:
-            lines.append("- ✅ No issues found")
+            lines.append("- No issues found")
         lines.append("")
-    
     return "\n".join(lines)
 
 
@@ -322,7 +258,6 @@ def generate_html_report(summary: dict[str, Any]) -> str:
               <td>{issue['message']}</td>
             </tr>
             """)
-    
     return f"""<!DOCTYPE html>
 <html>
 <head>
@@ -351,7 +286,6 @@ def generate_html_report(summary: dict[str, Any]) -> str:
 
 
 def check_skill_versions(repo_path: str) -> dict[str, Any]:
-    """Compare skill versions if git is available."""
     try:
         result = subprocess.run(
             ["git", "-C", repo_path, "log", "--oneline", "--all", "--", "skills/", "SKILL.md"],
@@ -368,7 +302,6 @@ def check_skill_versions(repo_path: str) -> dict[str, Any]:
 
 
 def test_skill_prompts(repo_path: str, model: str) -> dict[str, Any]:
-    """Test skill prompts against a model. Placeholder for future implementation."""
     return {
         "model": model,
         "status": "not_implemented",

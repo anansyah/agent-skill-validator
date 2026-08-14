@@ -51,7 +51,7 @@ def test_broken_skill_fixture():
     assert summary["skills"] == 1
     assert summary["total_issues"] >= 8
     messages = [i["message"] for r in summary["results"] for i in r["issues"]]
-    assert any("Deprecated model" in m for m in messages)
+    assert any("Deprecated model reference: gpt-4-0314" in m for m in messages)
     assert any("rm -rf" in m for m in messages)
     assert any("API key" in m for m in messages)
     assert any("Missing SKILL.md frontmatter" in m for m in messages)
