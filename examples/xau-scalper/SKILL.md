@@ -41,6 +41,6 @@ Scalping strategy for XAU/USD with strict risk management.
 
 ```python
 import os
-API_KEY = os.environ.get("BINANCE_API_KEY")
-API_SECRET = os.environ.get("BINANCE_API_SECRET")
+API_KEY = os.environ.get("EXAMPLE_API_KEY")
+API_SECRET = os.environ.get("EXAMPLE_API_SECRET")
 ```
